@@ -22,14 +22,14 @@ export interface IFormData {
     zipcode: string;
     phoneNumber: string;
     addressNumber: string;
-    country: string;
     city: string;
     addressDistrict: string;
     addressComplement: string | null;
-    street: string;
+    addressStreet: string;
     educationLevel: string;
-    minimumWage: number;
+    minimumWage: string;
     password: string;
+    confirmPassword?: string;
 }
 
 export type TFormData = z.infer<typeof formSchema>;

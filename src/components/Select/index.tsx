@@ -1,5 +1,7 @@
 import { ForwardedRef, SelectHTMLAttributes, forwardRef } from "react";
 import { FieldError } from "react-hook-form";
+import { StyledSelect } from "./style";
+import { StyledLabel } from "../Input/style";
 
 interface ISelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
     label?: string;
@@ -14,10 +16,12 @@ export const Select = forwardRef(
     ) => {
         return (
             <>
-                {label ? <label htmlFor={rest.name}>{label}</label> : null}
-                <select {...rest} ref={ref}>
+                {label ? (
+                    <StyledLabel htmlFor={rest.name}>{label}</StyledLabel>
+                ) : null}
+                <StyledSelect {...rest} ref={ref}>
                     {children}
-                </select>
+                </StyledSelect>
                 {error ? <p>{error.message}</p> : null}
             </>
         );

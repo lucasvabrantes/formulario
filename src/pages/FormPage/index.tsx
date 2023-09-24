@@ -1,9 +1,9 @@
-import { StyledBody } from "./style";
+import { StyledBody, StyledButton, StyledFieldset, StyledForm } from "./style";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TFormSchema, formSchema } from "./formSchema";
-import { useForm } from "react-hook-form";
-import { TFormData } from "./interfaces";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { ICepResponse, IFormData } from "./interfaces";
 import { Input } from "../../components/Input";
 import { Select } from "../../components/Select";
 import {
@@ -15,6 +15,9 @@ import {
 } from "./masks/masks";
 import { useQuery } from "react-query";
 import { fetchData } from "../../services/api";
+import { StyledLabel } from "../../components/Input/style";
+import togOn from "../../assets/toggleOn.svg";
+import togOff from "../../assets/toggleOff.svg";
 
 function FormPage() {
     const [isTypePassword, setIsTypePassword] = useState(true);
@@ -23,26 +26,22 @@ function FormPage() {
     const {
         register,
         handleSubmit,
-        reset,
         formState: { errors },
     } = useForm<TFormSchema>({ resolver: zodResolver(formSchema) });
 
-    const onSubmit = (formData: TFormData) => {
-        console.log(formData);
+    const onSubmit: SubmitHandler<TFormSchema> = (data: IFormData) => {
+        const newObject = { ...data, zipcode: inputValue };
+        delete newObject.confirmPassword;
+
+        alert(JSON.stringify(newObject));
     };
 
-    const { data, error, isLoading } = useQuery({
-        queryKey: ["cepData", inputValue],
+    const { data, error, isLoading } = useQuery<ICepResponse | void>({
+        queryKey: ["cepNumber", inputValue],
         queryFn: async () => {
-            if (inputValue.length === 8) {
-                return await fetchData(inputValue);
-            }
+            return await fetchData(inputValue);
         },
     });
-
-    if (isLoading) {
-        <p> Carregando</p>;
-    }
 
     if (error instanceof Error) {
         console.log(error);
@@ -50,7 +49,7 @@ function FormPage() {
 
     return (
         <StyledBody>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <StyledForm onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     type="text"
                     label="Nome completo"
@@ -72,6 +71,7 @@ function FormPage() {
                     label="Data de Nascimento"
                     {...register("birthdate")}
                     error={errors.birthdate}
+                    maxLength={10}
                     onChange={(e) => {
                         const { value } = e.target;
                         e.target.value = normalizeBirthdate(value);
@@ -82,6 +82,7 @@ function FormPage() {
                     label="Contato"
                     {...register("phoneNumber")}
                     error={errors.phoneNumber}
+                    maxLength={15}
                     onChange={(e) => {
                         const { value } = e.target;
                         e.target.value = normalizePhone(value);
@@ -91,6 +92,7 @@ function FormPage() {
                     type="text"
                     label="CEP"
                     {...register("zipcode")}
+                    maxLength={9}
                     error={errors.zipcode}
                     onChange={(e) => {
                         const { value } = e.target;
@@ -106,8 +108,14 @@ function FormPage() {
                     error={errors.addressState}
                     {...register("addressState")}
                 >
-                    <option value="">Selecione o seu Estado</option>
-                    {<option value={data?.uf}>{data?.uf}</option>}
+                    <option value="">
+                        {isLoading ? "Carregando" : "Selecione o seu Estado"}
+                    </option>
+                    {
+                        <option defaultValue={data?.uf} value={data?.uf}>
+                            {data?.uf}
+                        </option>
+                    }
                 </Select>
                 <Select
                     label="Cidade"
@@ -115,7 +123,12 @@ function FormPage() {
                     {...register("city")}
                 >
                     <option value="">Selecione sua cidade</option>
-                    <option value={data?.localidade}>{data?.localidade}</option>
+                    <option
+                        defaultValue={data?.localidade}
+                        value={data?.localidade}
+                    >
+                        {data?.localidade}
+                    </option>
                 </Select>
                 <Input
                     type="text"
@@ -142,6 +155,7 @@ function FormPage() {
                     label="Complemento"
                     {...register("addressComplement")}
                     error={errors.addressComplement}
+                    placeholder="Opcional"
                 />
                 <Input
                     type="email"
@@ -159,16 +173,21 @@ function FormPage() {
                         e.target.value = normalizeMinimumWage(value);
                     }}
                 />
-                <fieldset>
-                    <label htmlFor="educationLevel">Escolaridade</label>
-                    <div>
+                <StyledFieldset>
+                    <StyledLabel htmlFor="educationLevel">
+                        Escolaridade
+                    </StyledLabel>
+                    <div className="inputRadio">
                         <Input
+                            defaultChecked
                             type="radio"
-                            label="Ensino Fundamento Completo"
+                            label="Ensino Fundamental Completo"
                             {...register("educationLevel")}
                             error={errors.educationLevel}
                             value="ensinoFundamental"
                         />
+                    </div>
+                    <div className="inputRadio">
                         <Input
                             type="radio"
                             label="Ensino Médio Completo"
@@ -176,6 +195,8 @@ function FormPage() {
                             error={errors.educationLevel}
                             value="ensinoMedio"
                         />
+                    </div>
+                    <div className="inputRadio">
                         <Input
                             type="radio"
                             label="Ensino Superior Completo"
@@ -184,7 +205,7 @@ function FormPage() {
                             value="ensinoSuperior"
                         />
                     </div>
-                </fieldset>
+                </StyledFieldset>
                 <Input
                     type={isTypePassword ? "password" : "text"}
                     label="Senha"
@@ -197,11 +218,19 @@ function FormPage() {
                     {...register("confirmPassword")}
                     error={errors.confirmPassword}
                 />
-                <button onClick={() => setIsTypePassword(!isTypePassword)}>
-                    Ver senhas
+                <button
+                    type="button"
+                    className="passwordButton"
+                    onClick={() => setIsTypePassword(!isTypePassword)}
+                >
+                    <img
+                        src={isTypePassword ? togOn : togOff}
+                        alt="Botão para revelar ou esconder a senha"
+                    />
+                    <span>Ver senhas</span>
                 </button>
-                <button type="submit">Cadastrar</button>
-            </form>
+                <StyledButton type="submit">Cadastrar</StyledButton>
+            </StyledForm>
         </StyledBody>
     );
 }

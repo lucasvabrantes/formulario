@@ -31,7 +31,7 @@ export function normalizeBirthdate(value: string) {
     return value;
 }
 
-export function normalizeMinimumWage(value: any) {
+export function normalizeMinimumWage(value: string) {
     const currentValue: string = value.replace(/[^\d,]/g, "");
 
     const currentValueNumber: number = parseFloat(
