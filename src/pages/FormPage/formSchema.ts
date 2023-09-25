@@ -18,7 +18,6 @@ function isGreaterThan18(birthdate: string) {
     const currentDate = new Date();
 
     let age = currentDate.getFullYear() - birthdateObject.getFullYear();
-    console.log(age);
 
     if (
         birthdateObject.getMonth() > currentDate.getMonth() ||
@@ -27,7 +26,6 @@ function isGreaterThan18(birthdate: string) {
     ) {
         age--;
     }
-    console.log(age);
 
     return age >= 18;
 }
