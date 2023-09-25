@@ -46,11 +46,8 @@ export const formSchema = z
             .refine((birthdate) => isGreaterThan18(birthdate), {
                 message: "Você precisa ter mais de 18 anos para continuar",
             }),
-        email: z.string().email().min(1, "E-mail inválido"),
-        zipcode: z
-            .string()
-            .min(1, "Faltam mais números neste CEP")
-            .max(9, "Precisa conter no mínimo 8 números"),
+        email: z.string().email("E-mail inválido").min(1, "E-mail inválido"),
+        zipcode: z.string().max(9, "Precisa conter no mínimo 8 números"),
         phoneNumber: z.string().min(11, "Número de telefone inválido"),
         addressNumber: z
             .string()
@@ -67,11 +64,16 @@ export const formSchema = z
             .string()
             .min(1, "Por favor selecione pelo uma opção de escolaridade"),
         minimumWage: z.string().min(1),
-        password: z.string().nonempty().min(10),    
-        confirmPassword: z.string().min(10),
+        password: z
+            .string()
+            .min(10, "A senha precisa conter pelo menos 10 caracteres"),
+        confirmPassword: z
+            .string()
+            .min(10, "A senha precisa conter pelo menos 10 caracteres"),
     })
     .refine(({ password, confirmPassword }) => password === confirmPassword, {
         path: ["confirmPassword"],
+        message: "As senhas não correspondem",
     });
 
 export type TFormSchema = z.infer<typeof formSchema>;

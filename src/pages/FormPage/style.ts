@@ -60,6 +60,7 @@ export const StyledFieldset = styled.fieldset`
         align-items: center;
         align-content: center;
         margin-left: 20px;
+        position: relative;
 
         label {
             margin-top: 11px;
@@ -67,16 +68,25 @@ export const StyledFieldset = styled.fieldset`
             color: var(--grey-2);
             font-weight: 400;
         }
-        input {
+        input[type="radio"] {
+            appearance: none;
+            border: 1px solid var(--grey-1);
+            border-radius: 50%;
+            display: flex;
             align-self: center;
-            color: var(--purple-1);
-            height: 20px;
+            height: 24px;
             width: 24px;
-            background-color: var(--purple-1);
+            background-color: var(--white);
+        }
 
-            :checked::before {
-                background-color: var(--purple-1);
-            }
+        input[type="radio"]:checked::before {
+            content: "";
+            display: inline-block;
+            align-self: center;
+            border-radius: 50%;
+            border: 7.5px solid var(--purple-1);
+            position: absolute;
+            left: 9.5px;
         }
     }
 `;

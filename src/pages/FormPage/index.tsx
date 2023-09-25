@@ -27,10 +27,29 @@ function FormPage() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<TFormSchema>({ resolver: zodResolver(formSchema) });
+    } = useForm<TFormSchema>({
+        resolver: zodResolver(formSchema),
+        mode: "onChange",
+    });
 
     const onSubmit: SubmitHandler<TFormSchema> = (data: IFormData) => {
-        const newObject = { ...data, zipcode: inputValue };
+        data.birthdate = data.birthdate.replace("/", "").replace("/", "");
+        data.phoneNumber = data.phoneNumber
+            .replace("(", "")
+            .replace(")", "")
+            .replace("-", "");
+        data.documentNumber = data.documentNumber
+            .replace(".", "")
+            .replace(".", "")
+            .replace("-", "");
+        const newMinimumWage = Number(
+            data.minimumWage.replace("R$", "")
+        ).toFixed(3);
+        const newObject = {
+            ...data,
+            zipcode: inputValue,
+            minimumWage: newMinimumWage,
+        };
         delete newObject.confirmPassword;
 
         alert(JSON.stringify(newObject));
